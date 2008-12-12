@@ -12,14 +12,19 @@ class Evolves(object):
         self.wTree.signal_autoconnect(self)
         
         self.setup_widgets()
-        
-        img = gtk.gdk.pixbuf_new_from_file(IMAGE_FILE_NAME)
-        self.original.window.draw_pixbuf(None, img, 0, 0, 0, 0)
-    
+            
     def setup_widgets(self):
         self.original = self.wTree.get_widget('real_image')
         self.best = self.wTree.get_widget('best')
         self.evolves = self.wTree.get_widget('evolves')
+        
+        self.img = gtk.gdk.pixbuf_new_from_file(IMAGE_FILE_NAME)
+        self.gc = self.original.window.new_gc()
+        
+        self.wTree.get_widget('main_window').resize(int(self.img.get_width()*3.5), int(self.img.get_height()*1.5))
+    
+    def orig_expose(self, *args):
+        self.original.window.draw_pixbuf(self.gc, self.img, 0, 0, 0, 0)
     
     def quit(self, *args, **kwargs):
         gtk.main_quit()
