@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import pyglet
+from pyglet import gl
 
 IMAGE_FILE_NAME = 'mona_lisa_crop.jpg'
 
@@ -20,7 +21,7 @@ class Polygon(object):
     
     def draw(self, offset=(0, 0)):
         w, h = offset
-        pyglet.graphics.draw(len(self.vertices), pyglet.gl.GL_POLYGON,
+        pyglet.graphics.draw(len(self.vertices), gl.GL_POLYGON,
                 ('v2i', [int(p) for p in flatten((x+w, y+h) for x, y in self.vertices)]),
                 ('c4b', self.color * len(self.vertices)),
             )
@@ -42,15 +43,16 @@ class Evolves(pyglet.window.Window):
         self.f = pyglet.image.load(IMAGE_FILE_NAME)
         super(Evolves, self).__init__(caption="Evolves 2008", 
             width=self.f.width*2, height=self.f.height)
-        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
     
     def on_draw(self):
         self.clear()
         self.f.blit(0, 0)
         x = Approximater(None)
         x.append(Polygon(
-            [(0, 0), (self.f.width, 0), (self.f.width, self.f.height), (0, self.f.height)],
-            (255, 3, 45, 100)
+            [(0, 0), (0, self.f.height), (self.f.width, self.f.height), (self.f.width, 0)],
+            (255, 3, 45, 125)
         ))
         x.draw((self.f.width, 0))
     
