@@ -22,8 +22,8 @@ class Polygon(object):
     def draw(self, offset=(0, 0)):
         w, h = offset
         pyglet.graphics.draw(len(self.vertices), gl.GL_POLYGON,
-                ('v2i', [int(p) for p in flatten((x+w, y+h) for x, y in self.vertices)]),
-                ('c4b', self.color * len(self.vertices)),
+                ('v2f', [int(p) for p in flatten((x+w, y+h) for x, y in self.vertices)]),
+                ('c4B', self.color * len(self.vertices)),
             )
 
 class Approximater(object):
