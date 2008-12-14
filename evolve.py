@@ -40,21 +40,27 @@ class Approximater(object):
 
 class Evolves(pyglet.window.Window):
     def __init__(self):
-        self.f = pyglet.image.load(IMAGE_FILE_NAME)
         super(Evolves, self).__init__(caption="Evolves 2008", 
-            width=self.f.width*2, height=self.f.height)
+            width=100, height=100)
         gl.glEnable(gl.GL_BLEND)
         gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+        
+        self.setup()
     
-    def on_draw(self):
-        self.clear()
-        self.f.blit(0, 0)
-        x = Approximater(None)
-        x.append(Polygon(
+    def setup(self):
+        self.f = pyglet.image.load(IMAGE_FILE_NAME)
+        self.set_size(self.f.width*2, self.f.height)
+        
+        self.approx = Approximater(self.f)
+        self.approx.append(Polygon(
             [(0, 0), (0, self.f.height), (self.f.width, self.f.height), (self.f.width, 0)],
             (255, 3, 45, 125)
         ))
-        x.draw((self.f.width, 0))
+            
+    def on_draw(self):
+        self.clear()
+        self.f.blit(0, 0)
+        self.approx.draw((self.f.width, 0))
     
     def run(self):
         pyglet.app.run()
