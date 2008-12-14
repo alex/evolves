@@ -22,9 +22,9 @@ class Polygon(object):
     def draw(self, offset=(0, 0)):
         w, h = offset
         pyglet.graphics.draw(len(self.vertices), gl.GL_POLYGON,
-                ('v2f', [int(p) for p in flatten((x+w, y+h) for x, y in self.vertices)]),
-                ('c4B', self.color * len(self.vertices)),
-            )
+            ('v2f', [int(p) for p in flatten((x+w, y+h) for x, y in self.vertices)]),
+            ('c4B', self.color * len(self.vertices)),
+        )
         gl.glColor4f(1, 1, 1, 1)
 
 class Approximater(object):
@@ -55,7 +55,11 @@ class Evolves(pyglet.window.Window):
         self.approx = Approximater(self.f)
         self.approx.append(Polygon(
             [(0, 0), (0, self.f.height), (self.f.width, self.f.height), (self.f.width, 0)],
-            (255, 3, 45, 125)
+            (255, 3, 45, 15)
+        ))
+        self.approx.append(Polygon(
+            [(10, 10), (10, 90), (90, 90), (90, 10)],
+            (3, 255, 45, 15)
         ))
             
     def on_draw(self):
