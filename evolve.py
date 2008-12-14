@@ -25,6 +25,7 @@ class Polygon(object):
                 ('v2f', [int(p) for p in flatten((x+w, y+h) for x, y in self.vertices)]),
                 ('c4B', self.color * len(self.vertices)),
             )
+        gl.glColor4f(1, 1, 1, 1)
 
 class Approximater(object):
     def __init__(self, orig):
