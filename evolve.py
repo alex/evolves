@@ -5,6 +5,9 @@ from pyglet import gl
 
 IMAGE_FILE_NAME = 'mona_lisa_crop.jpg'
 
+def partition(seq, chunk_size):
+    return [seq[i:i+chunk_size] for i in xrange(0, len(seq), chunk_size)]
+
 def flatten(seq):
     if not hasattr(seq, '__iter__'):
         yield seq
@@ -12,6 +15,11 @@ def flatten(seq):
         for item in seq:
             for i in flatten(item):
                 yield i
+
+def get_pixel_data(x, y, width, height):
+    p = (4*width*height*gl.GLubyte)()
+    gl.glReadPixels(x, y, width, height, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, p)
+    return [(r, g, b) for r, g, b, a in partition(p, 4)]
 
 class Polygon(object):
     def __init__(self, vertices, color):
@@ -32,9 +40,21 @@ class Approximater(object):
     def __init__(self, orig):
         self.orig = orig
         self.polys = []
+        img = self.orig.get_image_data()
+        self.orig_data = partition([ord(x) for x in img.get_data("RGB", img.width*3)], 3)
     
     def append(self, poly):
         self.polys.append(poly)
+    
+    def fitness(self):
+        approx = get_pixel_data(self.orig.width, 0, self.orig.width, self.orig.height)
+        diff = 0.0
+        for (r1,g1,b1), (r2, g2, b2) in zip(self.orig_data, approx):
+        	r_diff = r1 - r2
+        	g_diff = g1 - g2
+        	b_diff = b1 - b2
+        	diff += r_diff**2 + g_diff**2 + b_diff**2
+        return diff
     
     def draw(self, offset=(0, 0)):
         for poly in self.polys:
@@ -59,7 +79,7 @@ class Evolves(pyglet.window.Window):
             (255, 3, 45, .75)
         ))
         self.approx.append(Polygon(
-            [(10, 10), (10, 90), (90, 90), (90, 10)],
+            [(-25, 10), (-25, 90), (90, 90), (90, 10)],
             (3, 255, 45, .75)
         ))
             
@@ -67,6 +87,7 @@ class Evolves(pyglet.window.Window):
         self.clear()
         self.f.blit(0, 0)
         self.approx.draw((self.f.width, 0))
+        print self.approx.fitness()
     
     def run(self):
         pyglet.app.run()
