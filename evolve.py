@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
+from random import randrange, random
+
 import pyglet
 from pyglet import gl
 
-IMAGE_FILE_NAME = 'mona_lisa_crop.jpg'
+from constants import IMAGE_FILE_NAME, INITIAL_POLYGONS, INITIAL_VERTICES_PER_POLYGON
 
 def partition(seq, chunk_size):
     return [seq[i:i+chunk_size] for i in xrange(0, len(seq), chunk_size)]
@@ -36,18 +38,37 @@ class Polygon(object):
         )
         gl.glColor4f(1, 1, 1, 1)
 
-class Approximater(object):
-    def __init__(self, orig):
-        self.orig = orig
-        self.polys = []
-        img = self.orig.get_image_data()
-        self.orig_data = partition([ord(x) for x in img.get_data("RGB", img.width*3)], 3)
+class PolygonSet(object):
+    def __init__(self, polys=None):
+        self.polys = polys or []
     
     def append(self, poly):
         self.polys.append(poly)
     
+    def draw(self, offset=(0, 0)):
+        for poly in self.polys:
+            poly.draw(offset)
+
+class Approximater(object):
+    def __init__(self, orig):
+        self.orig = orig
+        img = self.orig.get_image_data()
+        self.orig_data = partition([ord(x) for x in img.get_data("RGB", img.width*3)], 3)
+        
+        self.setup()
+        
+    def setup(self):
+        self.best = PolygonSet()
+        self.current_approx = PolygonSet()
+
+        for i in xrange(INITIAL_POLYGONS):
+            self.current_approx.append(Polygon(
+                [(randrange(0, self.orig.width), randrange(0, self.orig.height)) for j in xrange(INITIAL_VERTICES_PER_POLYGON)],
+                (randrange(0, 255), randrange(0, 255), randrange(0, 255), random())
+            ))
+    
     def fitness(self):
-        approx = get_pixel_data(self.orig.width, 0, self.orig.width, self.orig.height)
+        approx = get_pixel_data(self.orig.width*2, 0, self.orig.width, self.orig.height)
         diff = 0.0
         for (r1,g1,b1), (r2, g2, b2) in zip(self.orig_data, approx):
         	r_diff = r1 - r2
@@ -56,9 +77,9 @@ class Approximater(object):
         	diff += r_diff**2 + g_diff**2 + b_diff**2
         return diff
     
-    def draw(self, offset=(0, 0)):
-        for poly in self.polys:
-            poly.draw(offset)
+    def draw(self):
+        self.best.draw((self.orig.width, 0))
+        self.current_approx.draw((self.orig.width*2, 0))
 
 class Evolves(pyglet.window.Window):
     def __init__(self):
@@ -71,22 +92,14 @@ class Evolves(pyglet.window.Window):
     
     def setup(self):
         self.f = pyglet.image.load(IMAGE_FILE_NAME)
-        self.set_size(self.f.width*2, self.f.height)
+        self.set_size(self.f.width*3, self.f.height)
         
         self.approx = Approximater(self.f)
-        self.approx.append(Polygon(
-            [(0, 0), (0, self.f.height), (self.f.width, self.f.height), (self.f.width, 0)],
-            (255, 3, 45, .75)
-        ))
-        self.approx.append(Polygon(
-            [(-25, 10), (-25, 90), (90, 90), (90, 10)],
-            (3, 255, 45, .75)
-        ))
             
     def on_draw(self):
         self.clear()
         self.f.blit(0, 0)
-        self.approx.draw((self.f.width, 0))
+        self.approx.draw()
         print self.approx.fitness()
     
     def run(self):
