@@ -99,15 +99,16 @@ class Approximater(object):
     
     def evolve(self):
         self.current_approx.mutate()
+        self.current_approx.draw()
         if self.current_approx.fitness() >= self.best.fitness():
             self.best = self.current_approx.clone(start=self.best.start)
         else:
             self.current_approx = self.best.clone(start=self.current_approx.start)
     
     def draw(self):
-        self.best.draw()
         self.current_approx.draw()
         self.evolve()
+        self.best.draw()
 
 class Evolves(pyglet.window.Window):
     def __init__(self):
