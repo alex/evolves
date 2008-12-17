@@ -98,7 +98,7 @@ class Approximater(object):
         for i in xrange(INITIAL_POLYGONS):
             self.current_approx.append(Polygon(
                 [(randrange(0, self.orig.width), randrange(0, self.orig.height)) for j in xrange(INITIAL_VERTICES_PER_POLYGON)],
-                (randrange(0, 255), randrange(0, 255), randrange(0, 255), random())
+                (255, 255, 255, 0)
             ))
     
     def evolve(self, window):
