@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 from random import choice, randrange, random
 
 import pyglet
@@ -111,7 +112,7 @@ class Approximater(object):
         else:
             self.current_approx = self.best.clone(start=self.current_approx.start)
             self.current_approx.draw()
-        print "%s / %s" % (self.bene_evolutions, self.evolutions)
+        logging.info("%s / %s" % (self.bene_evolutions, self.evolutions))
     
     def draw(self):
         self.current_approx.draw()
@@ -143,4 +144,5 @@ class Evolves(pyglet.window.Window):
         pyglet.app.run()
 
 if __name__ == '__main__':
+    logging.basicConfig(filename='log.log', level=logging.INFO)
     Evolves().run()
