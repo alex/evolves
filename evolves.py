@@ -87,6 +87,9 @@ class Approximater(object):
         
         self.setup()
         
+        self.evolutions = 0
+        self.bene_evolutions = 0
+        
     def setup(self):
         self.best = PolygonSet([], (self.orig.width, 0), (self.orig.width, self.orig.height), self.orig_data)
         self.current_approx = PolygonSet([], (self.orig.width*2, 0), (self.orig.width, self.orig.height), self.orig_data)
@@ -97,17 +100,21 @@ class Approximater(object):
                 (randrange(0, 255), randrange(0, 255), randrange(0, 255), random())
             ))
     
-    def evolve(self):
+    def evolve(self, *args, **kwargs):
         self.current_approx.mutate()
+        self.evolutions += 1
         self.current_approx.draw()
         if self.current_approx.fitness() >= self.best.fitness():
             self.best = self.current_approx.clone(start=self.best.start)
+            self.best.draw()
+            self.bene_evolutions += 1
         else:
             self.current_approx = self.best.clone(start=self.current_approx.start)
+            self.current_approx.draw()
+        print "%s / %s" % (self.bene_evolutions, self.evolutions)
     
     def draw(self):
         self.current_approx.draw()
-        self.evolve()
         self.best.draw()
 
 class Evolves(pyglet.window.Window):
@@ -125,11 +132,12 @@ class Evolves(pyglet.window.Window):
         
         self.approx = Approximater(self.f)
         
+        pyglet.clock.schedule(self.approx.evolve)
+        
     def on_draw(self):
         self.clear()
         self.f.blit(0, 0)
         self.approx.draw()
-        #print self.approx.fitness()
     
     def run(self):
         pyglet.app.run()
