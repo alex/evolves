@@ -103,20 +103,20 @@ class Approximater(object):
     
     def evolve(self, window):
         self.draw()
-        window.flip()
+        gl.glFinish()
         self.current_approx.mutate()
         self.evolutions += 1
         self.current_approx.draw()
-        window.flip()
+        gl.glFinish()
         if self.current_approx.fitness() >= self.best.fitness():
             self.best = self.current_approx.clone(start=self.best.start)
             self.best.draw()
-            window.flip()
+            gl.glFinish()
             self.bene_evolutions += 1
         else:
             self.current_approx = self.best.clone(start=self.current_approx.start)
             self.current_approx.draw()
-            window.flip()
+            gl.glFinish()
         logging.info("%s / %s" % (self.bene_evolutions, self.evolutions))
     
     def draw(self):
@@ -149,6 +149,7 @@ class Evolves(pyglet.window.Window):
             self.dispatch_events()
             self.dispatch_event('on_draw')
             self.approx.evolve(self)
+            self.flip()
 
 if __name__ == '__main__':
     logging.basicConfig(filename='log.log', level=logging.INFO)
